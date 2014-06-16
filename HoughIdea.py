@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import ndimage
 
+# Test data
 x = np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30])
 y = np.array([2,5,7,9,10,13,16,18,21,22,21,20,19,18,17,14,10,9,7,5,7,9,10,12,13,15,16,17,22,27])
 
@@ -41,7 +42,7 @@ def GetMCArray(x, y, m, c, threshold=2):
     bins = np.array(bins)
     return M, C, bins
 
-def GetMCMaximums(bins, size):
+def GetMCMaximums(bins_count, size):
     """ Return the indexes of the maximum values
 
     Parameters
@@ -58,19 +59,19 @@ def GetMCMaximums(bins, size):
     j_idxs : array
         Indexes of the peaks in c
     """
-    maxima = (bins_count == ndimage.maximum_filter(bins_count, 150))
+
+    maxima = (bins_count == ndimage.maximum_filter(bins_count, size))
     i_idxs, j_idxs = np.nonzero(maxima)
 
     return i_idxs, j_idxs
 
-if __name__ == "__main__":
 
-    nM, nC = 200, 201
-    size = 10
-    threshold = 1.0
+def PlotResults(size, threshold, N):
+    nM = N
+    nC = N
 
     m = np.linspace(-5, 5, nM)
-    c = np.linspace(-200, 100, nC)
+    c = np.linspace(-50, 50, nC)
     M, C, bins = GetMCArray(x, y, m, c, threshold=threshold)
     bins_count = bins.sum(axis=0)
 
@@ -85,18 +86,19 @@ if __name__ == "__main__":
     ax2.set_ylabel("c")
     plt.colorbar(cplt)
 
-    i_idxs, j_idxs = GetMCMaximums(bins, size=size)
+    i_idxs, j_idxs = GetMCMaximums(bins_count, size)
 
-    #if len(i_idxs) > 100:
-    #    raise RuntimeError(" I don't want to plot {} fits".format(len(i_idxs)))
+    if len(i_idxs) > 100:
+        print(" I don't want to plot {} fits".format(len(i_idxs)))
 
-    for i, j in zip(i_idxs, j_idxs):
-        x_fit = x[bins[:, i, j] == 1]
-        ax1.plot(x_fit, m[i]*x_fit + c[j], alpha=0.8, color="r")
+    else :
+        for i, j in zip(i_idxs, j_idxs):
+            x_fit = x[bins[:, i, j] == 1]
+            ax1.plot(x_fit, m[i]*x_fit + c[j], alpha=0.8, color="r")
 
     plt.show()
 
-
-
+if __name__ == "__main__":
+    PlotResults(100, 2.0 , 100)
 
 
